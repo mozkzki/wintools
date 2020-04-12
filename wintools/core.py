@@ -1,9 +1,6 @@
-import logging
-
-
 def foo() -> None:
-    logging.info("foo!")
+    print("foo!")
 
 
 def hello(text: str) -> None:
-    logging.info("hello! {}".format(text))
+    print("hello! {}".format(text))
