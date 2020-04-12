@@ -7,8 +7,8 @@ import shutil
 from boto3.session import Session
 from botocore.errorfactory import ClientError
 
-S3_BUCKET = "magarimame"
-AWS_PROFILE = "home"
+S3_BUCKET = "dummy"
+AWS_PROFILE = "dummy"
 
 
 def main():
@@ -18,7 +18,9 @@ def main():
     """
     )
 
-    parser.add_argument("path", help="アップロード対象のファイルパスやフォルダパス")
+    parser.add_argument("path", help="アップロード対象ファイル/フォルダのフルパス")
+    parser.add_argument("-b", "--bucket", help="アップロード先のS3バケット名", default=S3_BUCKET)
+    parser.add_argument("-p", "--profile", help="AWSのプロファイル名", default=AWS_PROFILE)
 
     args = parser.parse_args()
 
@@ -27,10 +29,10 @@ def main():
     # ログレベルを DEBUG に変更
     logging.basicConfig(level=logging.INFO, format=formatter)
 
-    upload(args.path)
+    upload(args.path, args.bucket, args.profile)
 
 
-def upload(path: str) -> None:
+def upload(path: str, s3_bucket: str, aws_profile: str) -> None:
     if not os.path.exists(path):
         logging.error("target not found. path={}".format(path))
         sys.exit(1)
@@ -41,20 +43,20 @@ def upload(path: str) -> None:
         shutil.make_archive(path, "zip", root_dir=path)
         path = path + ".zip"
 
-    logging.info("{} -----> s3://{}".format(path, S3_BUCKET))
+    logging.info("{} -----> s3://{}".format(path, s3_bucket))
     basename = os.path.basename(path)
 
     # アップロード
-    cmd = "aws s3 cp {} s3://{} --profile {}".format(path, S3_BUCKET, AWS_PROFILE)
+    cmd = "aws s3 cp {} s3://{} --profile {}".format(path, s3_bucket, aws_profile)
     logging.info(cmd)
     os.system(cmd)
 
     # アップロードに成功したらs3パスをクリップボードへコピー
-    if is_s3_key_exists(basename):
+    if is_s3_key_exists(aws_profile, s3_bucket, basename):
         logging.info("----------------------")
         logging.info("SUCCESS")
         logging.info("----------------------")
-        result = "s3://{}/{}".format(S3_BUCKET, basename)
+        result = "s3://{}/{}".format(s3_bucket, basename)
         logging.info(result + "   ( copied to clipboad. )")
         logging.info("----------------------")
         pyperclip.copy(result)
@@ -64,15 +66,15 @@ def upload(path: str) -> None:
         logging.error("!!!!!!!!!!!!!!!!!!!!!!")
 
 
-def is_s3_key_exists(key: str) -> bool:
+def is_s3_key_exists(aws_profile: str, s3_bucket: str, key: str) -> bool:
     try:
-        session = Session(profile_name=AWS_PROFILE)
+        session = Session(profile_name=aws_profile)
         s3 = session.client("s3")
-        s3.head_object(Bucket=S3_BUCKET, Key=key)
-        logging.info("key is exists. s3://{}/{}".format(S3_BUCKET, key))
+        s3.head_object(Bucket=s3_bucket, Key=key)
+        logging.info("key is exists. s3://{}/{}".format(s3_bucket, key))
         return True
     except ClientError:
-        logging.error("key is not exists. s3://{}/{}".format(S3_BUCKET, key))
+        logging.error("key is not exists. s3://{}/{}".format(s3_bucket, key))
         return False
 
 
