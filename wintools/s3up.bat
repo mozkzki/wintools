@@ -1,4 +1,4 @@
 @echo off
 
-py -m pipenv run python .\wintools\s3up.py %1
+py %~dp0\s3up.py %1
 pause

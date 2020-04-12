@@ -30,6 +30,12 @@ windowsの場合(pythonランチャーを使う場合)
 py -m pip install -U git+https://github.com/yukkun007/wintools
 ```
 
+## 使い方 (*.py直接指定)
+
+```(sh)
+py .\wintools\s3up.py "hoge"
+```
+
 ## 使い方 (コードからモジュールを利用)
 
 [参照](#モジュールを利用)
