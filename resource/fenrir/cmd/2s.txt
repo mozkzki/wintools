@@ -1,0 +1,3 @@
+[.***;
+S3Upload|C:\workspace\wintools\wintools\s3up.bat "%P"
+]
