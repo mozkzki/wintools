@@ -54,8 +54,8 @@ def upload(path: str) -> None:
         logging.info("----------------------")
         logging.info("SUCCESS")
         logging.info("----------------------")
-        result = "s3://{}/{}   ( copied to clipboad. )".format(S3_BUCKET, basename)
-        logging.info(result)
+        result = "s3://{}/{}".format(S3_BUCKET, basename)
+        logging.info(result + "   ( copied to clipboad. )")
         logging.info("----------------------")
         pyperclip.copy(result)
     else:
