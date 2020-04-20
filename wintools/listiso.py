@@ -27,7 +27,7 @@ def print_fileinfo(file: str, drive_letter: str):
     print("{},,,{},{}".format(file_path, file_size, file_update_time))
 
 
-def print_files():
+def print_files(iso_file: str):
     search_list = ["E", "F", "G", "H", "I"]
 
     files = []
@@ -45,10 +45,10 @@ def print_files():
         if len(search_list) == 0:
             break
 
-    print("-----------------------")
+    print("--------- ↓ [{}] ↓ --------".format(iso_file))
     for file in files:
         print_fileinfo(file, drive_letter)
-    print("-----------------------")
+    print("--------- ↑ [{}] ↑ --------".format(iso_file))
 
 
 def mount(iso_file: str):
@@ -65,7 +65,7 @@ def unmount(iso_file: str):
 
 def list_iso(iso_file: str):
     mount(iso_file)
-    print_files()
+    print_files(iso_file)
     unmount(iso_file)
 
 
