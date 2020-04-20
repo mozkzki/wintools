@@ -1,17 +1,23 @@
 import os
+import time
 import glob
 import pathlib
 import datetime
 import argparse
 
 
-def print_fileinfo(file: str):
+def print_fileinfo(file: str, drive_letter: str):
     p = pathlib.Path(file)
     p.resolve()
 
+    # ファイルパス (ドライブレターは削除)
     file_path = str(p)
+    file_path = file_path.replace("{}:\\".format(drive_letter), "")
+
+    # ファイルサイズ
     file_size = os.path.getsize(file)
 
+    # ファイル最終更新日付
     dt = datetime.datetime.fromtimestamp(p.stat().st_mtime)
     year = dt.strftime("%Y")
     month = dt.strftime("%m").lstrip("0")
@@ -21,11 +27,27 @@ def print_fileinfo(file: str):
     print("{},,,{},{}".format(file_path, file_size, file_update_time))
 
 
-def print_files(drive_letter: str):
-    files = glob.glob("{}:/*".format(drive_letter))
+def print_files():
+    search_list = ["E", "F", "G", "H", "I"]
+
+    files = []
+    while len(files) <= 0:
+        # 検索対象のドライブレターを決める（ない場合、次のドライブレターで試す）
+        drive_letter = search_list.pop(0)
+
+        # filesが取れない時があるので、ダミーアクセス
+        test = os.path.join("{}:/".format(drive_letter), "dummy")
+
+        files = glob.glob("{}:/*".format(drive_letter))
+        time.sleep(1)
+
+        # 検索対象のドライブレターがもうなければ終わり
+        if len(search_list) == 0:
+            break
+
     print("-----------------------")
     for file in files:
-        print_fileinfo(file)
+        print_fileinfo(file, drive_letter)
     print("-----------------------")
 
 
@@ -41,30 +63,35 @@ def unmount(iso_file: str):
     os.system("powershell -Command" + " " + power_command)
 
 
+def list_iso(iso_file: str):
+    mount(iso_file)
+    print_files()
+    unmount(iso_file)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="""
 isoファイルの中身を表示します。
 
-指定されたisoファイルをマウントして、その情報(サイズや更新日付)を表示します。
-マスター出図票を作成する際に、表示された情報をコピーします。
-マウント→中身表示→アンマウントの流れで実行しますが、マウントされる
-ドライブレターは環境依存なので予め試した上で指定してください。
+指定されたディレクトリにあるisoファイルをマウントして、その情報(サイズや更新日付)を表示します。
+適当なドライブレター（E:からI:）に対してマウント→中身表示→アンマウントの流れで実行します。
+マウントに失敗する場合はコードを直接変更してください。
+表示された情報は、そのままマスター出図連絡票にコピー出来ます。
     """,
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
-    parser.add_argument("iso", help="isoファイルのフルパスを指定")
-    parser.add_argument("drive", help="マウントされるドライブレターを指定(環境依存なので予め確かめること)")
+    parser.add_argument("target", help="isoファイルの格納ディレクトリ(フルパス)")
     args = parser.parse_args()
 
-    mount(args.iso)
-    print_files(args.drive)
-    unmount(args.iso)
+    isos = glob.glob("{}/*".format(args.target))
+    for iso in isos:
+        list_iso(iso)
 
 
 # sample call
-# python wintools\listiso.py c:\workspace\wintools\test.iso E
+# python wintools\listiso.py c:\workspace\wintools E
 if __name__ == "__main__":
     main()
 
