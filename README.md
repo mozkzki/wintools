@@ -1,133 +1,102 @@
 # wintools
 
-Utilityes for Windows.
+Windows関連ツール.
 
-## 必要な環境変数
+## Install
 
-特になし。
-
-## インストール
-
-```(sh)
-pip install git+https://github.com/yukkun007/wintools
+```sh
+pip install git+https://github.com/mozkzki/wintools
+# upgrade
+pip install --upgrade git+https://github.com/mozkzki/wintools
+# uninstall
+pip uninstall wintools
 ```
 
-windowsの場合(pythonランチャーを使う場合)
+## Usage
 
-```(sh)
-py -m pip install git+https://github.com/yukkun007/wintools
+### S3
+
+```sh
+# download directory
+wintools s3 download s3://mozkzki/wintools/sample/ ./out
+# download file (save to current directory)
+wintools s3 download s3://mozkzki/wintools/sample/LICENSE
 ```
 
-## アップグレード
+### ISO
 
-```(sh)
-pip install -U git+https://github.com/yukkun007/wintools
+```sh
 ```
 
-windowsの場合(pythonランチャーを使う場合)
+### File
 
-```(sh)
-py -m pip install -U git+https://github.com/yukkun007/wintools
+```sh
 ```
 
-## 使い方 (*.py直接指定)
+## Develop
 
-```(sh)
-py .\wintools\s3up.py "hoge"
+### Prepare
+
+```sh
+poetry install
+poetry shell
 ```
 
-## 使い方 (コードからモジュールを利用)
+### Run (Example)
 
-[参照](#モジュールを利用)
-
-## 使い方 (コマンドラインアプリ)
-
-```(sh)
-py -m wintools
+```sh
+./examples/example.sh
+# or
+make example
+# or
+make start # show help
 ```
 
-## アンインストール
+### Unit Test
 
-```(sh)
-py -m pip uninstall wintools
+test all.
+
+```sh
+pytest
+pytest -v # verbose
+pytest -s # show standard output (same --capture=no)
+pytest -ra # show summary (exclude passed test)
+pytest -rA # show summary (include passed test)
 ```
 
-## 開発フロー
+with filter.
 
-### 環境構築
-
-1. プロジェクトディレクトリに仮想環境を作成するために下記環境変数を追加
-
-   - Linux
-
-     ```(sh)
-     export PIPENV_VENV_IN_PROJECT=true
-     ```
-
-   - Windows
-
-     ```(sh)
-     set PIPENV_VENV_IN_PROJECT=true
-     ```
-
-1. `py -m pip install pipenv`
-1. `git clone git@github.com:yukkun007/wintools.git`
-1. `cd wintools`
-1. `py -m pipenv install --dev`
-
-### install package
-
-下記は編集可能モードでインストールされる。
-
-```(sh)
-py -m pipenv run pip install -e .
+```sh
+pytest -k app
+pytest -k test_app.py
+pytest -k my
 ```
 
-通常のインストールは下記だがソース編集の都度`upgrade package`が必要なので基本は`-e`をつける。
+specified marker.
 
-```(sh)
-py -m pipenv run pip install .
+```sh
+pytest -m 'slow'
+pytest -m 'not slow'
 ```
 
-### upgrade package
+make coverage report.
 
-```(sh)
-py -m pipenv run pip install --upgrade . (もしくは-U)
+```sh
+pytest -v --capture=no --cov-config .coveragerc --cov=src --cov-report=xml --cov-report=term-missing .
+# or
+make ut
 ```
 
-## 開発行為
+### Lint
 
-### モジュールを利用
-
-```(python)
-$ python
-or
-$ py -m pipenv run python
->>> import wintools
->>> wintools.foo()
->>> wintools.hello("yutaka")
+```sh
+flake8 --max-line-length=100 --ignore=E203,W503 ./src
+# or
+make lint
 ```
 
-### コマンドラインアプリを実行
+### Update dependency modules
 
-```(sh)
-py -m pipenv run start (もしくはmyapp)
-```
+dependabot (GitHub公式) がプルリクを挙げてくるので確認してマージする。
 
-### unit test
-
-```(sh)
-py -m pipenv run ut
-```
-
-### lint
-
-```(sh)
-py -m pipenv run lint
-```
-
-### create api document (sphinx)
-
-```(sh)
-py -m pipenv run doc
-```
+- dependabotは`pyproject.toml`と`poetry.lock`を更新してくれる
