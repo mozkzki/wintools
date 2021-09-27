@@ -26,14 +26,23 @@ wintools s3 download s3://mozkzki/wintools/sample/LICENSE
 ### ISO
 
 ```sh
+# dump iso
+wintools iso dump ./tests/resources/
+# mount
+wintools iso mount ./tests/resources/test.iso
+# unmount
+wintools iso unmount ./tests/resources/test.iso
 ```
 
 ### File
 
 ```sh
+wintools file dump ./tests
 ```
 
 ## Develop
+
+base project: [mozkzki/moz-sample](https://github.com/mozkzki/moz-sample)
 
 ### Prepare
 
